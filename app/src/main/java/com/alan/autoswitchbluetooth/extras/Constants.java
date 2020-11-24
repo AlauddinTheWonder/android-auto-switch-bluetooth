@@ -7,8 +7,6 @@ public class Constants {
     public final static String TAG = "ALAN_AUTO_SWITCH";
     public final static String SHARED_PREF_NAME = "SavedDevices";
 
-    public static final String DEVICE_BLUETOOTH = "com.device.bluetooth";
-
     public static final byte DEFAULT_DELIMITER = '\n';
 
     public static final int REQUEST_ENABLE_BT = 1;

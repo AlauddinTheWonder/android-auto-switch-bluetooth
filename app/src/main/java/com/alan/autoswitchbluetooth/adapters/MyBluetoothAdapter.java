@@ -211,10 +211,10 @@ public class MyBluetoothAdapter {
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
-                if (state == BluetoothAdapter.STATE_ON) {
-                    checkBluetoothState();
-                }
-                else if (state == BluetoothAdapter.STATE_OFF) {
+//                if (state == BluetoothAdapter.STATE_ON) {
+//                    checkBluetoothState();
+//                }
+                if (state == BluetoothAdapter.STATE_OFF) {
                     disconnect();
                     info("Bluetooth disabled");
                 }

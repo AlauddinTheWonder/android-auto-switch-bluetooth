@@ -36,6 +36,8 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
 
     Context context;
 
+    private final String BT_NAME_SEPARATOR = "~";
+
     private MyBluetoothAdapter myDevice;
     private BluetoothDevice btDevice;
 
@@ -79,7 +81,7 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
             List<String> list = new ArrayList<String>();
 
             for (String sName: prefsSet) {
-                list.add(sName.replace("|", "\n"));
+                list.add(sName.replace(BT_NAME_SEPARATOR, "\n"));
             }
             arrayAdapter.addAll(list);
 
@@ -165,9 +167,6 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
 
     @Override
     public void onDeviceConnect(BluetoothDevice device) {
-        addNewView.setVisibility(View.GONE);
-        verifyDeviceView.setVisibility(View.VISIBLE);
-
         log("Connected to: " + device.getName() + " (" + device.getAddress() + ")", true);
 
         processSelectedDevice(device);
@@ -224,13 +223,23 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
     }
 
     private void processSelectedDevice(BluetoothDevice device) {
-        btDevice = device;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runCommand(Command.PING_BACK, Command.NO_COMMAND_VALUE);
-            }
-        }, 3000);
+        if (isDeviceSaved(device)) {
+            log("Device already added", true);
+            myDevice.disconnect();
+        }
+        else {
+            btDevice = device;
+
+            addNewView.setVisibility(View.GONE);
+            verifyDeviceView.setVisibility(View.VISIBLE);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    runCommand(Command.PING_BACK, Command.NO_COMMAND_VALUE);
+                }
+            }, 3000);
+        }
     }
 
     private void onDeviceAdded() {
@@ -238,7 +247,7 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
         verifyDeviceView.setVisibility(View.GONE);
         listDevicesView.setVisibility(View.VISIBLE);
 
-        prefsSet.add(btDevice.getName() + "|" + btDevice.getAddress());
+        prefsSet.add(btDevice.getName() + BT_NAME_SEPARATOR + btDevice.getAddress());
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putStringSet(Constants.SHARED_PREF_NAME, prefsSet);
         editor.apply();
@@ -247,6 +256,8 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
         arrayAdapter.notifyDataSetChanged();
 
         log(btDevice.getName() + " added successfully", true);
+
+        myDevice.disconnect();
     }
 
     private void onInvalidDevice() {
@@ -290,6 +301,9 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
             return;
         }
 
+        commandHandler.removeCallbacksAndMessages(null);
+        commandRetry = 0;
+
         if (data.equals(String.valueOf(Command.PING_BACK))) {
             onDeviceAdded();
         } else {
@@ -297,6 +311,20 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
         }
 
         progressDialog.hide();
+    }
+
+    private boolean isDeviceSaved(BluetoothDevice device) {
+        if (prefsSet.size() > 0) {
+            for (String str : prefsSet) {
+                String[] chunk = str.split(BT_NAME_SEPARATOR);
+                if (chunk.length > 1) {
+                    if (chunk[1].equals(device.getAddress())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 }
