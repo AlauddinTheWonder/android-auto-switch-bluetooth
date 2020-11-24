@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LaunchActivity">
+
+    <LinearLayout
+        android:id="@+id/view_add_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/btn_add_device"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:tint="@color/black"
+            android:src="@drawable/ic_add_black_24dp"
+            android:contentDescription="@string/add" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_new_device"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_verify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/scan_loader"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/verifying_device"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ListView
+            android:id="@+id/saved_devices"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>
