@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -26,23 +26,21 @@ import com.alan.autoswitchbluetooth.dialogs.ProgressDialog;
 import com.alan.autoswitchbluetooth.extras.Command;
 import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.interfaces.DeviceListener;
+import com.alan.autoswitchbluetooth.models.DeviceModel;
+import com.alan.autoswitchbluetooth.models.DevicePrefs;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class LaunchActivity extends AppCompatActivity implements DeviceListener {
 
     Context context;
 
-    private final String BT_NAME_SEPARATOR = "~";
-
     private MyBluetoothAdapter myDevice;
     private BluetoothDevice btDevice;
 
     private ProgressDialog progressDialog;
-    private SharedPreferences sharedPref;
+    private DevicePrefs devicePrefs;
 
     final Handler commandHandler = new Handler();
     int commandRetry = 0;
@@ -50,7 +48,6 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
     LinearLayout addNewView, verifyDeviceView, listDevicesView;
 
     private ArrayAdapter<String> arrayAdapter;
-    private Set<String> prefsSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +69,15 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
 
         progressDialog = new ProgressDialog(this);
 
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
-        prefsSet = sharedPref.getStringSet(Constants.SHARED_PREF_NAME, new HashSet<String>());
+        devicePrefs = new DevicePrefs(this);
 
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
-        if (prefsSet.size() > 0) {
+        if (devicePrefs.size() > 0) {
             List<String> list = new ArrayList<String>();
 
-            for (String sName: prefsSet) {
-                list.add(sName.replace(BT_NAME_SEPARATOR, "\n"));
+            for (DeviceModel deviceModel: devicePrefs.getList()) {
+                list.add(deviceModel.getName() + "\n" + deviceModel.getAddress());
             }
             arrayAdapter.addAll(list);
 
@@ -91,6 +87,20 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
 
         ListView deviceListView = findViewById(R.id.saved_devices);
         deviceListView.setAdapter(arrayAdapter);
+        deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DeviceModel device = devicePrefs.get(position);
+
+                log("Clicked on pos " + position);
+                log("Name: " + device.getName());
+                log("Launching MainActivity");
+
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.putExtra(Constants.EXTRA_DEVICE_ADDRESS, device.getAddress());
+                context.startActivity(intent);
+            }
+        });
 
         myDevice = new MyBluetoothAdapter(this);
         myDevice.setListener(this);
@@ -247,10 +257,7 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
         verifyDeviceView.setVisibility(View.GONE);
         listDevicesView.setVisibility(View.VISIBLE);
 
-        prefsSet.add(btDevice.getName() + BT_NAME_SEPARATOR + btDevice.getAddress());
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putStringSet(Constants.SHARED_PREF_NAME, prefsSet);
-        editor.apply();
+        devicePrefs.add(btDevice);
 
         arrayAdapter.add(btDevice.getName() + "\n" + btDevice.getAddress());
         arrayAdapter.notifyDataSetChanged();
@@ -261,7 +268,7 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
     }
 
     private void onInvalidDevice() {
-        if (prefsSet.size() == 0) {
+        if (devicePrefs.size() == 0) {
             addNewView.setVisibility(View.VISIBLE);
         }
         verifyDeviceView.setVisibility(View.GONE);
@@ -297,6 +304,8 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
     }
 
     private void onDataReceived(String data) {
+        log("<< " + data);
+
         if (data.isEmpty()) {
             return;
         }
@@ -314,13 +323,10 @@ public class LaunchActivity extends AppCompatActivity implements DeviceListener 
     }
 
     private boolean isDeviceSaved(BluetoothDevice device) {
-        if (prefsSet.size() > 0) {
-            for (String str : prefsSet) {
-                String[] chunk = str.split(BT_NAME_SEPARATOR);
-                if (chunk.length > 1) {
-                    if (chunk[1].equals(device.getAddress())) {
-                        return true;
-                    }
+        if (devicePrefs.size() > 0) {
+            for (DeviceModel deviceModel : devicePrefs.getList()) {
+                if (deviceModel.getAddress().equals(device.getAddress())) {
+                    return true;
                 }
             }
         }

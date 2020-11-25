@@ -39,6 +39,8 @@ public class MyBluetoothAdapter {
     private byte[] readBuffer;
     private int readBufferPosition;
 
+    private boolean isFullControlMode = false;
+
     private DeviceListener listener;
 
     public MyBluetoothAdapter(Activity activity) {
@@ -62,6 +64,10 @@ public class MyBluetoothAdapter {
         checkBluetoothState();
     }
 
+    public void connect(BluetoothDevice device) {
+        onDeviceSelect(device);
+    }
+
     public void disconnect() {
         closeSocket();
     }
@@ -70,6 +76,10 @@ public class MyBluetoothAdapter {
         closeSocket();
 //        disableBluetooth();
         this.context.unregisterReceiver(receiver);
+    }
+
+    public void setFullControlMode(boolean mode) {
+        isFullControlMode = mode;
     }
 
     public void send(String data) {
@@ -90,24 +100,27 @@ public class MyBluetoothAdapter {
         }
     }
 
-    private boolean isEnabled() {
+    public boolean isEnabled() {
         if (btAdapter == null) {
             return false;
         }
         return btAdapter.isEnabled();
     }
 
-    private boolean isConnected() {
+    public boolean isConnected() {
         return isEnabled() && btSocket != null && btSocket.isConnected();
     }
 
     private void enableBluetooth() {
         if (!isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            context.startActivityForResult(enableBtIntent, Constants.REQUEST_ENABLE_BT);
-
-//            btAdapter.enable();
-//            Toast.makeText(context, "Bluetooth enabled", Toast.LENGTH_SHORT).show();
+            if (isFullControlMode) {
+                btAdapter.enable();
+                Toast.makeText(context, "Bluetooth enabled", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                context.startActivityForResult(enableBtIntent, Constants.REQUEST_ENABLE_BT);
+            }
         }
     }
 
@@ -125,13 +138,20 @@ public class MyBluetoothAdapter {
                 listener.onExitRequest();
             }
         } else {
-            if (isEnabled()) {
-                listBtDevices();
-            }
-            else {
+            if (!isEnabled()) {
                 enableBluetooth();
             }
+            else {
+                listBtDevices();
+            }
         }
+    }
+
+    public BluetoothDevice getDeviceByAddress(String address) {
+        if (BluetoothAdapter.checkBluetoothAddress(address)) {
+            return btAdapter.getRemoteDevice(address);
+        }
+        return null;
     }
 
     private void closeSocket() {
@@ -159,7 +179,7 @@ public class MyBluetoothAdapter {
             Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
             return new ArrayList<>(devices);
         }
-        return new ArrayList<BluetoothDevice>();
+        return new ArrayList<>();
     }
 
     private void listBtDevices() {
@@ -199,6 +219,11 @@ public class MyBluetoothAdapter {
                 listener.onProgressStart();
             }
             connectToSocket(device);
+        }
+        else {
+            if (listener != null) {
+                listener.onDeviceConnectError("Device not paired");
+            }
         }
     }
 
@@ -240,8 +265,8 @@ public class MyBluetoothAdapter {
                         @Override
                         public void run() {
                             if (listener != null) {
-                                listener.onDeviceConnect(btDevice);
                                 listener.onProgressStop();
+                                listener.onDeviceConnect(btDevice);
                             }
                             beginListenForData();
                         }

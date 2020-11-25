@@ -1,18 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/appBG"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/top_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_alignParentTop="true"
+        android:background="@color/topView"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/device_name_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textColor="@color/grey"
+            android:text="@string/not_connected_str" />
+
+        <LinearLayout
+            android:id="@+id/time_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/current_time"
+                android:layout_width="0dp"
+                android:layout_weight=".50"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:text="@string/current_time_str" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:tint="@color/colorAccent"
+                android:contentDescription="@string/sync"
+                android:onClick="onSyncDeviceTimeClick"
+                android:src="@android:drawable/ic_popup_sync" />
+
+            <TextView
+                android:id="@+id/device_time"
+                android:layout_width="0dp"
+                android:layout_weight=".50"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:text="@string/dev_time_str" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/content_view"
+        android:background="@color/contentBg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_view"
+        android:layout_above="@id/bottom_view"
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/switch_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        >
+
+        <ScrollView
+            android:id="@+id/log_scroll_view"
+            android:background="@color/loggerBg"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:padding="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/log_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/loggerText"
+                android:text="" />
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</RelativeLayout>

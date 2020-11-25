@@ -5,7 +5,10 @@ import java.util.UUID;
 public class Constants {
 
     public final static String TAG = "ALAN_AUTO_SWITCH";
-    public final static String SHARED_PREF_NAME = "SavedDevices";
+    public final static String SHARED_PREF_FILE = "SavedDevices";
+    public final static String SHARED_PREF_KEY = "DevicesList";
+
+    public static final String EXTRA_DEVICE_ADDRESS = "com.alan.extra.device.address";
 
     public static final byte DEFAULT_DELIMITER = '\n';
 
