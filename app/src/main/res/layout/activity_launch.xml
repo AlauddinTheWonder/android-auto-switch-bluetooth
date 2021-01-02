@@ -12,45 +12,26 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="visible"
+        android:gravity="center"
         android:orientation="vertical">
-
-        <ImageButton
-            android:id="@+id/btn_add_device"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitCenter"
-            android:tint="@color/black"
-            android:src="@drawable/ic_add_black_24dp"
-            android:contentDescription="@string/add" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add_new_device"
+            android:textSize="22sp"
+            android:layout_marginBottom="50dp"
             />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/view_verify"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/scan_loader"
+        <ImageButton
+            android:id="@+id/btn_add_device"
             android:layout_width="96dp"
             android:layout_height="96dp"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/verifying_device"
-            />
+            android:background="@drawable/border"
+            android:scaleType="fitCenter"
+            android:tint="@color/colorBlack"
+            android:src="@drawable/ic_add_black_24dp"
+            android:contentDescription="@string/add" />
 
     </LinearLayout>
 
@@ -61,7 +42,7 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/saved_devices"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

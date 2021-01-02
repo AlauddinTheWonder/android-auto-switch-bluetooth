@@ -24,10 +24,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Empty slot"
+                android:text="@string/empty_slot_text"
                 android:textStyle="italic"
                 android:textSize="16sp"
-                android:textColor="@color/grey"
+                android:textColor="@color/secondary_text"
                 android:visibility="gone"/>
 
             <LinearLayout

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/appBG"
+    android:background="@color/colorWhite"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textSize="20sp"
-            android:textColor="@color/grey"
+            android:textColor="@color/primary_text"
             android:text="@string/not_connected_str" />
 
         <LinearLayout
@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:tint="@color/colorAccent"
+                android:tint="@color/secondary"
                 android:contentDescription="@string/sync"
                 android:onClick="onSyncDeviceTimeClick"
                 android:src="@android:drawable/ic_popup_sync" />
@@ -71,7 +71,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/top_view"
-        android:layout_above="@id/bottom_view"
         >
 
         <androidx.recyclerview.widget.RecyclerView
@@ -80,36 +79,6 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottom_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        >
-
-        <ScrollView
-            android:id="@+id/log_scroll_view"
-            android:background="@color/loggerBg"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true"
-            android:padding="10dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/log_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/loggerText"
-                android:text="" />
-
-        </ScrollView>
 
     </LinearLayout>
 

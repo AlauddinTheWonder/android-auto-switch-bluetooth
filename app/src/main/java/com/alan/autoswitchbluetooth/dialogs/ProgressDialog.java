@@ -43,6 +43,7 @@ public class ProgressDialog {
 
     public void dismiss() {
         dialog.dismiss();
+        showing = false;
     }
 
     public boolean isShowing() {
