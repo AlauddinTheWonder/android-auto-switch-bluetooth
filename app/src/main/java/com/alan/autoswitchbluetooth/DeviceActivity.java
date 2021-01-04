@@ -41,12 +41,13 @@ import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.interfaces.ConfirmDialogInterface;
 import com.alan.autoswitchbluetooth.interfaces.DeviceListListener;
 import com.alan.autoswitchbluetooth.interfaces.SerialListener;
+import com.alan.autoswitchbluetooth.models.DeviceModel;
 
 import java.util.Set;
 
 public class DeviceActivity extends AppCompatActivity implements SerialListener {
 
-    private int LESCAN_DURATION = 10 * 1000;
+    private final static int LESCAN_DURATION = 10 * 1000;
     Context context;
 
     private BluetoothAdapter btAdapter;
@@ -59,7 +60,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
     private ProgressDialog progressDialog;
 
-    private Handler scanStopHandler = new Handler();
+    private final Handler scanStopHandler = new Handler();
     final Handler commandHandler = new Handler();
     int commandRetry = 0;
     boolean isScanning = false;
@@ -83,14 +84,21 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
         listAdapter.setListener(new DeviceListListener() {
             @Override
-            public void onClick(int position, BluetoothDevice device) {
+            public void onClick(int position, DeviceModel deviceModel) {
+                BluetoothDevice device = btAdapter.getRemoteDevice(deviceModel.getAddress());
                 logDevice("Selected", device);
 
                 stopScan();
-                progressDialog.show();
+                progressDialog.show("Connecting...");
                 btSocket = new SerialSocket(device);
                 btSocket.connect(serialListener);
             }
+
+            @Override
+            public void onDelete(int position, DeviceModel deviceModel) {}
+
+            @Override
+            public void onRename(int position, DeviceModel deviceModel) {}
         });
 
         BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -386,7 +394,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressDialog.show();
+                progressDialog.show("Validating device...");
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -399,10 +407,11 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
     @Override
     public void onSerialConnectError(Exception e) {
-        log("Serial connection error: " + e.getMessage());
+        log(e.getMessage());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                log("Serial Connection Error", true);
                 progressDialog.hide();
             }
         });
@@ -434,10 +443,11 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
     @Override
     public void onSerialIoError(Exception e) {
-        log("Error: " + e.getMessage());
+        log(e.getMessage());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                log("Serial IO Error", true);
                 progressDialog.hide();
             }
         });

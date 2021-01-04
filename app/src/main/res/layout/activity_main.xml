@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:tint="@color/secondary"
-                android:contentDescription="@string/sync"
+                android:contentDescription="@string/text_sync"
                 android:onClick="onSyncDeviceTimeClick"
                 android:src="@android:drawable/ic_popup_sync" />
 

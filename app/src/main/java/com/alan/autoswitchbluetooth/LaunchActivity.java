@@ -20,14 +20,14 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.alan.autoswitchbluetooth.adapters.SavedDeviceListAdapter;
+import com.alan.autoswitchbluetooth.adapters.DeviceListAdapter;
 import com.alan.autoswitchbluetooth.dialogs.ConfirmDialog;
 import com.alan.autoswitchbluetooth.dialogs.PromptDialog;
 import com.alan.autoswitchbluetooth.dialogs.SimpleAlertDialog;
 import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.interfaces.ConfirmDialogInterface;
+import com.alan.autoswitchbluetooth.interfaces.DeviceListListener;
 import com.alan.autoswitchbluetooth.interfaces.PromptDialogInterface;
-import com.alan.autoswitchbluetooth.interfaces.SavedDeviceListListener;
 import com.alan.autoswitchbluetooth.models.DeviceModel;
 
 
@@ -35,7 +35,7 @@ public class LaunchActivity extends AppCompatActivity {
 
     Context context;
     private BluetoothAdapter btAdapter;
-    private SavedDeviceListAdapter listAdapter;
+    private DeviceListAdapter listAdapter;
 
     LinearLayout addNewView, listDevicesView;
 
@@ -56,11 +56,9 @@ public class LaunchActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_add_device).setOnClickListener(v -> onAddNewDevice());
 
-        listAdapter = new SavedDeviceListAdapter();
-        listAdapter.makePersistable(this, Constants.SHARED_PREF_FILE);
-
-        // Dummy code
-//        listAdapter.add(new DeviceModel("Mock Device " + listAdapter.size(), "00:00:00:00"));
+        listAdapter = new DeviceListAdapter(this)
+                .setShowControls(true)
+                .makePersistable(Constants.SHARED_PREF_FILE);
 
         if (listAdapter.size() > 0) {
             addNewView.setVisibility(View.GONE);
@@ -73,7 +71,7 @@ public class LaunchActivity extends AppCompatActivity {
         deviceListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         deviceListView.setAdapter(listAdapter);
 
-        listAdapter.setListener(new SavedDeviceListListener() {
+        listAdapter.setListener(new DeviceListListener() {
             @Override
             public void onClick(int position, DeviceModel device) {
                 Intent intent = new Intent(context, MainActivity.class);
@@ -210,28 +208,17 @@ public class LaunchActivity extends AppCompatActivity {
     }
 
     private void onDeviceAdded(BluetoothDevice device) {
-        if (isDeviceAlreadySaved(device)) {
+        if (listAdapter.contains(device)) {
             log("Device already added", true);
         }
         else {
             addNewView.setVisibility(View.GONE);
             listDevicesView.setVisibility(View.VISIBLE);
 
-            listAdapter.add(DeviceModel.btDeviceToModel(device));
+            listAdapter.add(device);
 
             log(device.getName() + " added successfully", true);
         }
-    }
-
-    private boolean isDeviceAlreadySaved(BluetoothDevice device) {
-        if (listAdapter.size() > 0) {
-            for (DeviceModel deviceModel : listAdapter.getList()) {
-                if (deviceModel.getAddress().equals(device.getAddress())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
 }

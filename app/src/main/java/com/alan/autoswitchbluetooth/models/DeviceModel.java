@@ -23,6 +23,12 @@ public class DeviceModel {
         return name;
     }
 
+    public void setName(String name) {
+        if (!name.isEmpty()) {
+            this.name = name;
+        }
+    }
+
     public String getAddress() {
         return address;
     }
@@ -32,10 +38,10 @@ public class DeviceModel {
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.label = label.isEmpty() ? getName() : label;
     }
 
-    public static DeviceModel btDeviceToModel(BluetoothDevice device) {
+    public static DeviceModel bluetoothDeviceToModel(BluetoothDevice device) {
         return new DeviceModel(device.getName(), device.getAddress());
     }
 }

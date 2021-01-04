@@ -3,9 +3,6 @@
     <string name="device_actionbar_text">Select a device</string>
     <string name="main_screen_actionbar_text">Smart Switch Controls</string>
 
-    <string name="mode_selection">Please select connection mode</string>
-    <string name="select_device_type">Select Device Type</string>
-
     <string name="bluetooth_enable_title">Bluetooth required</string>
     <string name="bluetooth_enable_message">Bluetooth is required for this App.\nShould enable it now?</string>
 
@@ -18,37 +15,30 @@
     <string name="btn_connect">Connect</string>
     <string name="btn_disconnect">Disconnect</string>
     <string name="sync_time_str">Sync Time</string>
+    <string name="add_new_device">Click to add new device</string>
     <string name="not_connected_str">Device not connected</string>
     <string name="connected_str">Connected to: <b>%1$s</b></string>
     <string name="current_time_str">Current Time:\n%1$s</string>
     <string name="dev_time_str">Device Time:\n%1$s</string>
 
-    <string name="switch_clk_info">Click on values to edit them.</string>
-
-    <string name="switch_str">Switch</string>
-    <string name="on_str">On</string>
-    <string name="off_str">Off</string>
+    <string name="text_switch">Switch</string>
+    <string name="text_on">On</string>
+    <string name="text_off">Off</string>
     <string name="time_str">%1$d:00</string>
 
-    <string name="usb">USB OTG</string>
-    <string name="bluetooth">Bluetooth</string>
-    <string name="terminal_mode">Terminal Mode</string>
-    <string name="send">Send</string>
-    <string name="terminal_input_hint">Enter text to send</string>
-    <string name="sync">Sync</string>
-    <string name="delete_str">Del</string>
-    <string name="show_logs">Show Logs</string>
-    <string name="add">Add</string>
     <string name="off_hour">Off Hour</string>
     <string name="on_hour">On Hour</string>
-    <string name="switch_txt">Select switch</string>
-    <string name="edit_str">Edit</string>
-    <string name="mock_device">Mock Device</string>
-    <string name="add_new_device">Click to add new device</string>
-    <string name="scanning_devices">Scanning devices</string>
-    <string name="verifying_device">Verifying Device</string>
-    <string name="empty_slot_text">Empty slot</string>
-    <string name="delete">Delete</string>
-    <string name="scan">Scan</string>
-    <string name="stop">Stop</string>
+    <string name="text_show_logs">Show Logs</string>
+    <string name="text_sync">Sync</string>
+    <string name="text_delete">Delete</string>
+    <string name="text_add">Add</string>
+    <string name="text_select_switch">Select switch</string>
+    <string name="text_edit">Edit</string>
+    <string name="text_empty_slot">Empty slot</string>
+    <string name="text_scan">Scan</string>
+    <string name="text_stop">Stop</string>
+    <string name="text_label">Label</string>
+    <string name="text_description">Description</string>
+    <string name="parentheses_open">(</string>
+    <string name="parentheses_close">)</string>
 </resources>

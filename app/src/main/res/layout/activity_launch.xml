@@ -31,7 +31,7 @@
             android:scaleType="fitCenter"
             android:tint="@color/colorBlack"
             android:src="@drawable/ic_add_black_24dp"
-            android:contentDescription="@string/add" />
+            android:contentDescription="@string/text_add" />
 
     </LinearLayout>
 
