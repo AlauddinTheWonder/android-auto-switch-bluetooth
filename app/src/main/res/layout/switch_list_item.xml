@@ -24,10 +24,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Empty slot"
+                android:text="@string/text_empty_slot"
                 android:textStyle="italic"
                 android:textSize="16sp"
-                android:textColor="@color/grey"
+                android:textColor="@color/secondary_text"
                 android:visibility="gone"/>
 
             <LinearLayout
@@ -48,7 +48,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/SwitchLabelStyle"
-                        android:text="@string/switch_str" />
+                        android:text="@string/text_switch" />
 
                     <TextView
                         android:id="@+id/switch_txt"
@@ -76,7 +76,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             style="@style/SwitchLabelStyle"
-                            android:text="@string/on_str" />
+                            android:text="@string/text_on" />
 
                         <TextView
                             android:id="@+id/on_txt"
@@ -103,7 +103,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             style="@style/SwitchLabelStyle"
-                            android:text="@string/off_str" />
+                            android:text="@string/text_off" />
 
                         <TextView
                             android:id="@+id/off_txt"
@@ -140,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:tint="@color/switchIcon"
-                android:contentDescription="@string/add"
+                android:contentDescription="@string/text_add"
                 android:src="@android:drawable/ic_input_add"
                 android:visibility="gone" />
 
@@ -149,7 +149,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/edit_str"
+                android:contentDescription="@string/text_edit"
                 android:scaleType="fitCenter"
                 android:tint="@color/switchIcon"
                 android:src="@drawable/pencil" />
@@ -160,7 +160,7 @@
                 android:layout_height="24dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
-                android:contentDescription="@string/delete_str"
+                android:contentDescription="@string/text_delete"
                 android:tint="@color/switchIcon"
                 android:layout_marginStart="10dp"
                 android:src="@drawable/trash_can" />

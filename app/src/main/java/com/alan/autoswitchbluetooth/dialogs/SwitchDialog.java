@@ -11,7 +11,7 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AlertDialog;
 
 import com.alan.autoswitchbluetooth.R;
-import com.alan.autoswitchbluetooth.interfaces.SwitchListener;
+import com.alan.autoswitchbluetooth.interfaces.SwitchDialogListener;
 import com.alan.autoswitchbluetooth.models.SwitchModel;
 
 public class SwitchDialog {
@@ -24,7 +24,7 @@ public class SwitchDialog {
     private NumberPicker offPicker;
     private Spinner switchPin;
 
-    private SwitchListener.OnSaveListener positiveListener;
+    private SwitchDialogListener.OnSaveListener positiveListener;
     private SwitchModel currentModel;
     private int currentPosition;
 
@@ -82,7 +82,7 @@ public class SwitchDialog {
         switchPin.setAdapter(adapter);
     }
 
-    public void show(SwitchModel switchModel, int position, SwitchListener.OnSaveListener listener) {
+    public void show(SwitchModel switchModel, int position, SwitchDialogListener.OnSaveListener listener) {
         positiveListener = listener;
         currentModel = switchModel;
         currentPosition = position;

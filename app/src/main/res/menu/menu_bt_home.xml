@@ -5,7 +5,7 @@
         android:id="@+id/action_add_device"
         app:showAsAction="always"
         android:title=""
-        android:contentDescription="@string/show_logs"
+        android:contentDescription="@string/text_show_logs"
         android:icon="@drawable/ic_add_black_24dp">
     </item>
 </menu>

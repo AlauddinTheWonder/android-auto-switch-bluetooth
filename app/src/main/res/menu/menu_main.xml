@@ -5,7 +5,7 @@
         android:id="@+id/action_show_logs"
         app:showAsAction="always"
         android:title=""
-        android:contentDescription="@string/show_logs"
+        android:contentDescription="@string/text_show_logs"
         android:icon="@drawable/bullet_list">
     </item>
 </menu>
