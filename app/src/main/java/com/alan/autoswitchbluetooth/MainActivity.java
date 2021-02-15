@@ -363,6 +363,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        log("<< " + data);
+
         int command = currentCommand.getCommand();
         long param = currentCommand.getParam();
 
@@ -422,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     int command = Integer.parseInt(commands[0]);
-                    int intData = Integer.parseInt(commands[1]);
 
                     if (command > 0) {
                         switch (command) {
@@ -431,11 +432,11 @@ public class MainActivity extends AppCompatActivity {
                                 break;
 
                             case Command.GET_SWITCH_NUM:
-                                NumOfSwitches = intData;
+                                NumOfSwitches = Integer.parseInt(commands[1]);
                                 break;
 
                             case Command.GET_MAX_SETTINGS:
-                                MaxSettingsCount = intData;
+                                MaxSettingsCount = Integer.parseInt(commands[1]);
 
                                 if (MaxSettingsCount > 0) {
                                     PinSettingsArray = new int[MaxSettingsCount * Constants.SWITCH_SINGLE_ROW_CNT + 1];
@@ -445,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
 
                             default:
                                 if (MaxSettingsCount > 0 && command <= (MaxSettingsCount * Constants.SWITCH_SINGLE_ROW_CNT)) {
-                                    PinSettingsArray[command] = intData;
+                                    PinSettingsArray[command] = Integer.parseInt(commands[1]);
                                 }
                                 break;
                         }
