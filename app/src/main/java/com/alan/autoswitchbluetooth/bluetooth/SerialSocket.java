@@ -6,18 +6,18 @@ import android.bluetooth.BluetoothSocket;
 
 import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.interfaces.SerialListener;
+import com.alan.autoswitchbluetooth.interfaces.Serial;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
 
-public class SerialSocket implements Runnable {
+public class SerialSocket implements Serial, Runnable {
 
     private SerialListener listener;
     private BluetoothDevice device;
     private BluetoothSocket socket;
-
 
     public SerialSocket(BluetoothDevice device) {
         this.device = device;
@@ -37,7 +37,7 @@ public class SerialSocket implements Runnable {
         Executors.newSingleThreadExecutor().submit(this);
     }
 
-    private boolean isConnected() {
+    public boolean isConnected() {
         return socket != null && socket.isConnected();
     }
 
@@ -57,7 +57,7 @@ public class SerialSocket implements Runnable {
         write(data.getBytes());
     }
 
-    private void write(byte[] data) {
+    public void write(byte[] data) {
         if (isConnected()) {
             try {
                 socket.getOutputStream().write(data);

@@ -26,20 +26,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.alan.autoswitchbluetooth.adapters.DeviceListAdapter;
-import com.alan.autoswitchbluetooth.bluetooth.SerialSocket;
+import com.alan.autoswitchbluetooth.bluetooth.MyBluetooth;
 import com.alan.autoswitchbluetooth.dialogs.ConfirmDialog;
 import com.alan.autoswitchbluetooth.dialogs.ProgressDialog;
 import com.alan.autoswitchbluetooth.dialogs.SimpleAlertDialog;
 import com.alan.autoswitchbluetooth.extras.Command;
 import com.alan.autoswitchbluetooth.extras.Constants;
+import com.alan.autoswitchbluetooth.extras.Utils;
 import com.alan.autoswitchbluetooth.interfaces.ConfirmDialogInterface;
 import com.alan.autoswitchbluetooth.interfaces.DeviceListListener;
+import com.alan.autoswitchbluetooth.interfaces.Serial;
 import com.alan.autoswitchbluetooth.interfaces.SerialListener;
 import com.alan.autoswitchbluetooth.models.DeviceModel;
 
@@ -52,7 +53,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
     private BluetoothAdapter btAdapter;
     private BluetoothLeScanner bleScanner;
-    private SerialSocket btSocket;
+    private Serial btSocket;
     private SerialListener serialListener;
 
     private DeviceListAdapter listAdapter;
@@ -90,7 +91,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
                 stopScan();
                 progressDialog.show("Connecting...");
-                btSocket = new SerialSocket(device);
+                btSocket = MyBluetooth.getSocket(DeviceActivity.this, device);
                 btSocket.connect(serialListener);
             }
 
@@ -206,7 +207,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
         }
     };
 
-    private ScanCallback leScanCallback = new ScanCallback() {
+    private final ScanCallback leScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
@@ -226,7 +227,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
     }
 
     private void log(final String text, boolean showToast) {
-        Log.i(Constants.TAG, text);
+        Utils.log(text);
 
         if (showToast) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -412,6 +413,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
             @Override
             public void run() {
                 log("Serial Connection Error", true);
+                log(e.getMessage());
                 progressDialog.hide();
             }
         });

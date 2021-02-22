@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothDevice;
 
 public class BluetoothUtils {
 
-    private BluetoothAdapter btAdapter;
+    private final BluetoothAdapter btAdapter;
 
     public BluetoothUtils(BluetoothAdapter adapter) {
         this.btAdapter = adapter;
@@ -16,6 +16,10 @@ public class BluetoothUtils {
             return btAdapter.getRemoteDevice(address);
         }
         return null;
+    }
+
+    public static boolean isBLE(BluetoothDevice device) {
+        return device.getType() == BluetoothDevice.DEVICE_TYPE_LE;
     }
 
     public static String getDeviceType(int type) {

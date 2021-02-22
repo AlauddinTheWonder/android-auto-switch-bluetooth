@@ -1,9 +1,15 @@
 package com.alan.autoswitchbluetooth.extras;
 
+import android.util.Log;
+
 import java.util.Random;
 import java.util.TimeZone;
 
 public class Utils {
+
+    public static void log(String msg) {
+        Log.d(Constants.TAG, msg);
+    }
 
     public static int getIndexByDelim(byte[] bytes) {
         for (int i = 0; i < bytes.length; i++) {

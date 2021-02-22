@@ -71,7 +71,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout ViewListItem, ViewListDescription2View, ViewListControls;
-        TextView ViewListLabel, ViewListDescription, ViewListDescription2;
+        TextView ViewListLabel, ViewListDescription, ViewListDescription2, ViewBleLabel;
         View ViewListStatus;
         ImageButton ViewListBtnEdit, ViewListBtnDelete;
 
@@ -85,6 +85,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
             ViewListLabel = itemView.findViewById(R.id.list_label);
             ViewListDescription = itemView.findViewById(R.id.list_description);
             ViewListDescription2 = itemView.findViewById(R.id.list_description2);
+            ViewBleLabel = itemView.findViewById(R.id.ble_label);
 
             ViewListStatus = itemView.findViewById(R.id.list_status);
             ViewListBtnEdit = itemView.findViewById(R.id.list_btn_edit);
@@ -119,9 +120,13 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
             holder.ViewListDescription2.setText(deviceModel.getName());
         }
 
+        if (item != null && item.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
+            holder.ViewBleLabel.setVisibility(View.VISIBLE);
+        }
+
         int colorPrimary = context.getResources().getColor(R.color.primary);
         int colorDisable = context.getResources().getColor(R.color.disabled);
-        holder.ViewListStatus.setBackgroundColor(item.getBondState() == BluetoothDevice.BOND_BONDED ? colorPrimary : colorDisable);
+        holder.ViewListStatus.setBackgroundColor((item != null && item.getBondState() == BluetoothDevice.BOND_BONDED) ? colorPrimary : colorDisable);
 
         holder.ViewListItem.setOnClickListener(v -> {
             if (listListener != null) {

@@ -10,7 +10,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 
 import com.alan.autoswitchbluetooth.adapters.SwitchListAdapter;
 import com.alan.autoswitchbluetooth.bluetooth.BluetoothUtils;
+import com.alan.autoswitchbluetooth.bluetooth.MyBluetooth;
 import com.alan.autoswitchbluetooth.bluetooth.SerialSocket;
 import com.alan.autoswitchbluetooth.dialogs.ConfirmDialog;
 import com.alan.autoswitchbluetooth.dialogs.ProgressDialog;
@@ -26,6 +26,7 @@ import com.alan.autoswitchbluetooth.extras.Command;
 import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.extras.Utils;
 import com.alan.autoswitchbluetooth.interfaces.ConfirmDialogInterface;
+import com.alan.autoswitchbluetooth.interfaces.Serial;
 import com.alan.autoswitchbluetooth.interfaces.SerialListener;
 import com.alan.autoswitchbluetooth.interfaces.SwitchListListener;
 import com.alan.autoswitchbluetooth.models.CommandList;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
 
     private BluetoothAdapter btAdapter;
-    private SerialSocket btSocket;
+    private Serial btSocket;
     private BluetoothUtils btUtils;
 
     private ProgressDialog progressDialog;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             if (device != null) {
                 progressDialog.show("Connecting...");
 
-                btSocket = new SerialSocket(device);
+                btSocket = MyBluetooth.getSocket(this, device);
                 btSocket.connect(new SerialListener() {
                     @Override
                     public void onSerialConnect(BluetoothDevice device) {
@@ -231,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void log(final String text, boolean showToast) {
-        Log.i(Constants.TAG, text);
+        Utils.log(text);
 
         if (showToast) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();

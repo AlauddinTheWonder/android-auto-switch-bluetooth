@@ -3,7 +3,7 @@ package com.alan.autoswitchbluetooth.models;
 import android.bluetooth.BluetoothDevice;
 
 public class DeviceModel {
-    private String address;
+    private final String address;
     private String name;
     private String label;
 
@@ -19,8 +19,12 @@ public class DeviceModel {
         this.label = label;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public String getName() {
-        return name;
+        return name != null ? name : this.getAddress();
     }
 
     public void setName(String name) {
@@ -29,12 +33,8 @@ public class DeviceModel {
         }
     }
 
-    public String getAddress() {
-        return address;
-    }
-
     public String getLabel() {
-        return label;
+        return label != null ? label : this.getName();
     }
 
     public void setLabel(String label) {
