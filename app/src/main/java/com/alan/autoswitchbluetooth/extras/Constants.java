@@ -7,7 +7,6 @@ import java.util.UUID;
 public class Constants {
 
     public final static String TAG = "ALAN_AUTO_SWITCH";
-    public final static String SHARED_PREF_FILE = "SavedDevices";
 
     public static final String EXTRA_DEVICE_ADDRESS = "com.alan.extra.device.address";
     public static final String EXTRA_DEVICE_ADD = "com.alan.extra.device";

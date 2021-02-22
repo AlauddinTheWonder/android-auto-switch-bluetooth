@@ -25,6 +25,7 @@ import com.alan.autoswitchbluetooth.dialogs.ConfirmDialog;
 import com.alan.autoswitchbluetooth.dialogs.PromptDialog;
 import com.alan.autoswitchbluetooth.dialogs.SimpleAlertDialog;
 import com.alan.autoswitchbluetooth.extras.Constants;
+import com.alan.autoswitchbluetooth.extras.Utils;
 import com.alan.autoswitchbluetooth.interfaces.ConfirmDialogInterface;
 import com.alan.autoswitchbluetooth.interfaces.DeviceListListener;
 import com.alan.autoswitchbluetooth.interfaces.PromptDialogInterface;
@@ -58,7 +59,7 @@ public class LaunchActivity extends AppCompatActivity {
 
         listAdapter = new DeviceListAdapter(this)
                 .setShowControls(true)
-                .makePersistable(Constants.SHARED_PREF_FILE);
+                .makePersistable();
 
         if (listAdapter.size() > 0) {
             addNewView.setVisibility(View.GONE);
@@ -71,46 +72,7 @@ public class LaunchActivity extends AppCompatActivity {
         deviceListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         deviceListView.setAdapter(listAdapter);
 
-        listAdapter.setListener(new DeviceListListener() {
-            @Override
-            public void onClick(int position, DeviceModel device) {
-                Intent intent = new Intent(context, MainActivity.class);
-                intent.putExtra(Constants.EXTRA_DEVICE_ADDRESS, device.getAddress());
-                context.startActivity(intent);
-            }
-
-            @Override
-            public void onRename(int position, DeviceModel device) {
-                PromptDialog dialog = new PromptDialog(context, "Rename this device");
-                dialog.setInputText(device.getLabel());
-                dialog.show(new PromptDialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(String text) {
-                        if (!text.equals(device.getLabel())) {
-                            device.setLabel(text);
-                            listAdapter.update(position, device);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onDelete(int position, DeviceModel device) {
-                ConfirmDialog confirmDialog = new ConfirmDialog(context, "Are you sure to remove this device?");
-                confirmDialog.show(new ConfirmDialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(boolean isTrue) {
-                        if (isTrue) {
-                            listAdapter.remove(position);
-                            if (listAdapter.size() == 0) {
-                                addNewView.setVisibility(View.VISIBLE);
-                                listDevicesView.setVisibility(View.GONE);
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        listAdapter.setListener(deviceListListener);
 
         enableBluetooth();
     }
@@ -147,16 +109,16 @@ public class LaunchActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_add_device);
-
-        Drawable icon = item.getIcon();
-        icon.setTint(getResources().getColor(R.color.menuIconTintActive));
-        item.setIcon(icon);
-
-        return super.onPrepareOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        MenuItem item = menu.findItem(R.id.action_add_device);
+//
+//        Drawable icon = item.getIcon();
+//        icon.setTint(getResources().getColor(R.color.menuIconTintActive));
+//        item.setIcon(icon);
+//
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -172,7 +134,7 @@ public class LaunchActivity extends AppCompatActivity {
     }
 
     private void log(final String text, boolean showToast) {
-        Log.i(Constants.TAG, text);
+        Utils.log(text);
 
         if (showToast) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -220,5 +182,48 @@ public class LaunchActivity extends AppCompatActivity {
             log(device.getName() + " added successfully", true);
         }
     }
+
+
+    // Device List Listener
+    private final DeviceListListener deviceListListener = new DeviceListListener() {
+        @Override
+        public void onClick(int position, DeviceModel device, boolean isSaved) {
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.putExtra(Constants.EXTRA_DEVICE_ADDRESS, device.getAddress());
+            context.startActivity(intent);
+        }
+
+        @Override
+        public void onRename(int position, DeviceModel device) {
+            PromptDialog dialog = new PromptDialog(context, "Rename this device");
+            dialog.setInputText(device.getLabel());
+            dialog.show(new PromptDialogInterface.OnClickListener() {
+                @Override
+                public void onClick(String text) {
+                    if (!text.equals(device.getLabel())) {
+                        device.setLabel(text);
+                        listAdapter.update(position, device);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onDelete(int position, DeviceModel device) {
+            ConfirmDialog confirmDialog = new ConfirmDialog(context, "Are you sure to remove this device?");
+            confirmDialog.show(new ConfirmDialogInterface.OnClickListener() {
+                @Override
+                public void onClick(boolean isTrue) {
+                    if (isTrue) {
+                        listAdapter.remove(position);
+                        if (listAdapter.size() == 0) {
+                            addNewView.setVisibility(View.VISIBLE);
+                            listDevicesView.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
+    };
 
 }

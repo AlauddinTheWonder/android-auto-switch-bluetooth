@@ -46,15 +46,14 @@ import com.alan.autoswitchbluetooth.models.DeviceModel;
 
 import java.util.Set;
 
-public class DeviceActivity extends AppCompatActivity implements SerialListener {
+public class DeviceActivity extends AppCompatActivity {
 
-    private final static int LESCAN_DURATION = 10 * 1000;
+    private final static int LE_SCAN_DURATION = 10 * 1000;
     Context context;
 
     private BluetoothAdapter btAdapter;
     private BluetoothLeScanner bleScanner;
     private Serial btSocket;
-    private SerialListener serialListener;
 
     private DeviceListAdapter listAdapter;
     private Menu menu;
@@ -71,7 +70,6 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device);
 
-        serialListener = this;
         context = this;
 
         listAdapter = new DeviceListAdapter(this);
@@ -83,24 +81,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
         deviceListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         deviceListView.setAdapter(listAdapter);
 
-        listAdapter.setListener(new DeviceListListener() {
-            @Override
-            public void onClick(int position, DeviceModel deviceModel) {
-                BluetoothDevice device = btAdapter.getRemoteDevice(deviceModel.getAddress());
-                logDevice("Selected", device);
-
-                stopScan();
-                progressDialog.show("Connecting...");
-                btSocket = MyBluetooth.getSocket(DeviceActivity.this, device);
-                btSocket.connect(serialListener);
-            }
-
-            @Override
-            public void onDelete(int position, DeviceModel deviceModel) {}
-
-            @Override
-            public void onRename(int position, DeviceModel deviceModel) {}
-        });
+        listAdapter.setListener(deviceListListener);
 
         BluetoothManager btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (btManager != null) {
@@ -190,31 +171,6 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
             }
         }
     }
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null) {
-                if (action.equals(BluetoothDevice.ACTION_FOUND)) {
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if (device != null) {
-                        logDevice("Discovery", device);
-                        addDeviceToList(device);
-                    }
-                }
-            }
-        }
-    };
-
-    private final ScanCallback leScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice device = result.getDevice();
-            logDevice("LE", device);
-            addDeviceToList(device);
-        }
-    };
 
     private void addDeviceToList(BluetoothDevice device) {
         if (!listAdapter.contains(device)) {
@@ -317,7 +273,7 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
 
         log("Scanning started...");
 
-        scanStopHandler.postDelayed(this::stopScan, LESCAN_DURATION);
+        scanStopHandler.postDelayed(this::stopScan, LE_SCAN_DURATION);
 
         listAdapter.clear();
         showPairedDevices();
@@ -388,70 +344,124 @@ public class DeviceActivity extends AppCompatActivity implements SerialListener 
         btSocket.disconnect();
     }
 
-    @Override
-    public void onSerialConnect(BluetoothDevice device) {
-        log("Device connected: " + device.getName());
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressDialog.show("Validating device...");
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        runCommand(Command.PING_BACK, Command.NO_COMMAND_VALUE);
-                    }
-                }, 3000);
+    // Device List Listener
+    private final DeviceListListener deviceListListener = new DeviceListListener() {
+        @Override
+        public void onClick(int position, DeviceModel deviceModel, boolean isSaved) {
+            if (isSaved) {
+                log("Device already saved!", true);
+                finish();
+                return;
             }
-        });
-    }
+            BluetoothDevice device = btAdapter.getRemoteDevice(deviceModel.getAddress());
+            logDevice("Selected", device);
 
-    @Override
-    public void onSerialConnectError(Exception e) {
-        log(e.getMessage());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                log("Serial Connection Error", true);
-                log(e.getMessage());
-                progressDialog.hide();
-            }
-        });
-    }
-
-    @Override
-    public void onSerialRead(String data) {
-        log("<< " + data);
-
-        if (data.isEmpty()) {
-            return;
+            stopScan();
+            progressDialog.show("Connecting...");
+            btSocket = MyBluetooth.getSocket(DeviceActivity.this, device);
+            btSocket.connect(serialListener);
         }
 
-        commandHandler.removeCallbacksAndMessages(null);
-        commandRetry = 0;
+        @Override
+        public void onDelete(int position, DeviceModel deviceModel) {}
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (data.equals(String.valueOf(Command.PING_BACK))) {
-                    onDeviceValidated(btSocket.getDevice());
-                } else {
-                    onInvalidDevice();
+        @Override
+        public void onRename(int position, DeviceModel deviceModel) {}
+    };
+
+    // Serial Listener
+    private final SerialListener serialListener = new SerialListener() {
+        @Override
+        public void onSerialConnect(BluetoothDevice device) {
+            log("Device connected: " + device.getName());
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.show("Validating device...");
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            runCommand(Command.PING_BACK, Command.NO_COMMAND_VALUE);
+                        }
+                    }, 3000);
                 }
-                progressDialog.hide();
-            }
-        });
-    }
+            });
+        }
 
-    @Override
-    public void onSerialIoError(Exception e) {
-        log(e.getMessage());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                log("Serial IO Error", true);
-                progressDialog.hide();
+        @Override
+        public void onSerialConnectError(Exception e) {
+            log(e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    log("Serial Connection Error", true);
+                    log(e.getMessage());
+                    progressDialog.hide();
+                }
+            });
+        }
+
+        @Override
+        public void onSerialRead(String data) {
+            log("<< " + data);
+
+            if (data.isEmpty()) {
+                return;
             }
-        });
-    }
+
+            commandHandler.removeCallbacksAndMessages(null);
+            commandRetry = 0;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (data.equals(String.valueOf(Command.PING_BACK))) {
+                        onDeviceValidated(btSocket.getDevice());
+                    } else {
+                        onInvalidDevice();
+                    }
+                    progressDialog.hide();
+                }
+            });
+        }
+
+        @Override
+        public void onSerialIoError(Exception e) {
+            log(e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    log("Serial IO Error", true);
+                    progressDialog.hide();
+                }
+            });
+        }
+    };
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null) {
+                if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    if (device != null) {
+                        logDevice("Discovery", device);
+                        addDeviceToList(device);
+                    }
+                }
+            }
+        }
+    };
+
+    private final ScanCallback leScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            BluetoothDevice device = result.getDevice();
+            logDevice("LE", device);
+            addDeviceToList(device);
+        }
+    };
 }

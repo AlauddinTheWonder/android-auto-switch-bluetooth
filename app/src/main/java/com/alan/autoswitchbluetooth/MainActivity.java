@@ -10,6 +10,8 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     CommandType currentCommand;
 
     // Views
-    private TextView deviceNameView, currentTimeView, deviceTimeView;
+    private TextView currentTimeView, deviceTimeView;
     private LinearLayout timeView;
     private RecyclerView switchListView;
 
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Connecting...");
 
         context = this;
 
@@ -83,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
         localDF = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
         utcDF = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
         utcDF.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        deviceNameView = findViewById(R.id.device_name_view);
 
         timeView = findViewById(R.id.time_view);
         currentTimeView = findViewById(R.id.current_time);
@@ -105,55 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.show("Connecting...");
 
                 btSocket = MyBluetooth.getSocket(this, device);
-                btSocket.connect(new SerialListener() {
-                    @Override
-                    public void onSerialConnect(BluetoothDevice device) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                String str = getString(R.string.connected_str, device.getName());
-                                log(str, true);
-                                deviceNameView.setText(str);
-                                deviceNameView.setTextColor(getResources().getColor(R.color.deviceConnected));
-
-                                getInfoFromDevice();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onSerialConnectError(Exception e) {
-                        log(e.getMessage());
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                exitScreen("Error in Connecting Device");
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onSerialRead(String data) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                onDataReceived(data);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onSerialIoError(Exception e) {
-                        log(e.getMessage());
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                log("Serial IO Error", true);
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                });
+                btSocket.connect(serialListener);
             }
         } else {
             exitScreen("Bluetooth is disabled");
@@ -167,48 +120,22 @@ public class MainActivity extends AppCompatActivity {
         switchListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         switchListView.setAdapter(listAdapter);
 
-        listAdapter.setListener(new SwitchListListener() {
-            @Override
-            public void onEdit(int position, SwitchModel switchModel) {
-                switchDialog.show(switchModel, position, (dialog, model, position1) -> {
-                    log("Updating list " + (position + 1));
+        listAdapter.setListener(switchListListener);
+    }
 
-                    int idx = model.getIndex();
-                    if (switchModel.getPin() != model.getPin()) {
-                        CommandList.add(idx, model.getPin());
-                    }
-                    if (switchModel.getOn() != model.getOn()) {
-                        CommandList.add(idx + 1, model.getOn());
-                    }
-                    if (switchModel.getOff() != model.getOff()) {
-                        CommandList.add(idx + 2, model.getOff());
-                    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-                    runCommandList();
-                });
-            }
-
-            @Override
-            public void onDelete(int position, SwitchModel switchModel) {
-                ConfirmDialog dialog = new ConfirmDialog(context, "Are you sure to delete this?");
-                dialog.show(new ConfirmDialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(boolean isTrue) {
-                        if (isTrue) {
-                            log("Deleting list " + (position + 1));
-
-                            int idx = switchModel.getIndex();
-
-                            CommandList.add(idx, 0);
-                            CommandList.add(idx + 1, 0);
-                            CommandList.add(idx + 2, 0);
-
-                            runCommandList();
-                        }
-                    }
-                });
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_bt_disconnect) {
+            exitScreen("Disconnecting...");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -495,4 +422,99 @@ public class MainActivity extends AppCompatActivity {
         listAdapter.update(position, switchModel);
     }
 
+
+    // Serial Listener
+    private final SerialListener serialListener = new SerialListener() {
+        @Override
+        public void onSerialConnect(BluetoothDevice device) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String str = getString(R.string.connected_str, device.getName());
+                    log(str, true);
+
+                    setTitle(device.getName());
+
+                    getInfoFromDevice();
+                }
+            });
+        }
+
+        @Override
+        public void onSerialConnectError(Exception e) {
+            log(e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    exitScreen("Error in Connecting Device");
+                }
+            });
+        }
+
+        @Override
+        public void onSerialRead(String data) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onDataReceived(data);
+                }
+            });
+        }
+
+        @Override
+        public void onSerialIoError(Exception e) {
+            log(e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    log("Serial IO Error", true);
+                    progressDialog.hide();
+                }
+            });
+        }
+    };
+
+    // Switch List Listener
+    private final SwitchListListener switchListListener = new SwitchListListener() {
+        @Override
+        public void onEdit(int position, SwitchModel switchModel) {
+            switchDialog.show(switchModel, position, (dialog, model, position1) -> {
+                log("Updating list " + (position + 1));
+
+                int idx = model.getIndex();
+                if (switchModel.getPin() != model.getPin()) {
+                    CommandList.add(idx, model.getPin());
+                }
+                if (switchModel.getOn() != model.getOn()) {
+                    CommandList.add(idx + 1, model.getOn());
+                }
+                if (switchModel.getOff() != model.getOff()) {
+                    CommandList.add(idx + 2, model.getOff());
+                }
+
+                runCommandList();
+            });
+        }
+
+        @Override
+        public void onDelete(int position, SwitchModel switchModel) {
+            ConfirmDialog dialog = new ConfirmDialog(context, "Are you sure to delete this?");
+            dialog.show(new ConfirmDialogInterface.OnClickListener() {
+                @Override
+                public void onClick(boolean isTrue) {
+                    if (isTrue) {
+                        log("Deleting list " + (position + 1));
+
+                        int idx = switchModel.getIndex();
+
+                        CommandList.add(idx, 0);
+                        CommandList.add(idx + 1, 0);
+                        CommandList.add(idx + 2, 0);
+
+                        runCommandList();
+                    }
+                }
+            });
+        }
+    };
 }

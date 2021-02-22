@@ -6,6 +6,6 @@
         app:showAsAction="always"
         android:title=""
         android:contentDescription="@string/text_show_logs"
-        android:icon="@drawable/ic_add_black_24dp">
+        android:icon="@drawable/loupe_icon">
     </item>
 </menu>

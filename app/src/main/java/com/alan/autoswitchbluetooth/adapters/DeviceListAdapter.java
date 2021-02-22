@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alan.autoswitchbluetooth.R;
+import com.alan.autoswitchbluetooth.extras.Constants;
 import com.alan.autoswitchbluetooth.interfaces.DeviceListListener;
 import com.alan.autoswitchbluetooth.models.DeviceModel;
 
@@ -26,6 +27,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
     private final String BT_NAME_SEPARATOR = "~";
     private final String DEVICE_LIST_SEPARATOR = ",";
     private final String SHARED_PREF_KEY = "DevicesList";
+    private final String SHARED_PREF_FILE = "SavedDevices";
 
     private SharedPreferences sharedPref;
     private BluetoothAdapter btAdapter;
@@ -34,6 +36,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
 
     final private Context context;
     private ArrayList<DeviceModel> list = new ArrayList<>();
+    private ArrayList<DeviceModel> savedList = new ArrayList<>();
     private boolean showControls = false;
     private boolean isPersist = false;
 
@@ -44,6 +47,8 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
         if (mgr != null) {
             btAdapter = mgr.getAdapter();
         }
+
+        loadSavedList();
     }
 
     public DeviceListAdapter setList(ArrayList<DeviceModel> defaultList) {
@@ -56,13 +61,16 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
         return this;
     }
 
-    public DeviceListAdapter makePersistable(String persistFile) {
-        sharedPref = context.getSharedPreferences(persistFile, Context.MODE_PRIVATE);
-        String listString = sharedPref.getString(SHARED_PREF_KEY, "");
-        this.list = parseToList(listString);
-
+    public DeviceListAdapter makePersistable() {
+        this.list = this.savedList;
         isPersist = true;
         return this;
+    }
+
+    private void loadSavedList() {
+        sharedPref = context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE);
+        String listString = sharedPref.getString(SHARED_PREF_KEY, "");
+        this.savedList = parseToList(listString);
     }
 
     public void setListener(DeviceListListener listener) {
@@ -105,6 +113,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DeviceModel deviceModel = list.get(position);
         BluetoothDevice item = getBluetoothDevice(deviceModel.getAddress());
+        boolean isSaved = isDeviceSaved(deviceModel);
 
         holder.ViewListLabel.setText(deviceModel.getLabel());
         holder.ViewListDescription.setText(deviceModel.getAddress());
@@ -126,11 +135,13 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
 
         int colorPrimary = context.getResources().getColor(R.color.primary);
         int colorDisable = context.getResources().getColor(R.color.disabled);
-        holder.ViewListStatus.setBackgroundColor((item != null && item.getBondState() == BluetoothDevice.BOND_BONDED) ? colorPrimary : colorDisable);
+//        holder.ViewListStatus.setBackgroundColor((item != null && item.getBondState() == BluetoothDevice.BOND_BONDED) ? colorPrimary : colorDisable);
+//        holder.ViewListStatus.setBackgroundColor(isPersist ? colorPrimary : colorDisable);
+        holder.ViewListStatus.setBackgroundColor(isSaved ? colorPrimary : colorDisable);
 
         holder.ViewListItem.setOnClickListener(v -> {
             if (listListener != null) {
-                listListener.onClick(position, deviceModel);
+                listListener.onClick(position, deviceModel, isSaved);
             }
         });
 
@@ -219,6 +230,15 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Vi
             return btAdapter.getRemoteDevice(macAddress);
         }
         return null;
+    }
+
+    private boolean isDeviceSaved(DeviceModel device) {
+        for (DeviceModel d : savedList) {
+            if (d.getAddress().equals(device.getAddress())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void syncPrefs() {
